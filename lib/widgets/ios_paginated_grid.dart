@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import '../models/app_info.dart';
 import 'ios_app_icon.dart';
+import 'sample_widgets/battery_widget.dart';
+import 'sample_widgets/weather_widget.dart';
 
 class IOSPaginatedGrid extends StatefulWidget {
   final List<AppInfo> apps;
   final Function(AppInfo) onAppTap;
-  final int itemsPerPage;
+  final Widget? Function(int pageIndex)? headerWidgetBuilder;
 
   const IOSPaginatedGrid({
     super.key,
     required this.apps,
     required this.onAppTap,
-    this.itemsPerPage = 24, // 4 columns x 6 rows
+    this.headerWidgetBuilder,
   });
 
   @override
@@ -34,15 +36,49 @@ class _IOSPaginatedGridState extends State<IOSPaginatedGrid> {
     super.dispose();
   }
 
+  Widget? _getDefaultHeader(int pageIndex) {
+    if (widget.headerWidgetBuilder != null) {
+      return widget.headerWidgetBuilder!(pageIndex);
+    }
+    // Default iOS setup:
+    // Page 0: Medium Battery Widget (4x2)
+    // Page 1: Small Weather Widget (2x2)
+    if (pageIndex == 0) {
+      return const Padding(
+        padding: EdgeInsets.only(bottom: 14.0),
+        child: BatteryWidget(),
+      );
+    } else if (pageIndex == 1) {
+      return const Padding(
+        padding: EdgeInsets.only(bottom: 14.0),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: WeatherWidget(),
+        ),
+      );
+    }
+    return null;
+  }
+
   List<List<AppInfo>> _chunkApps() {
     if (widget.apps.isEmpty) return [];
+
     final List<List<AppInfo>> pages = [];
-    for (int i = 0; i < widget.apps.length; i += widget.itemsPerPage) {
-      final end = (i + widget.itemsPerPage < widget.apps.length)
-          ? i + widget.itemsPerPage
+    int cursor = 0;
+    int pageIndex = 0;
+
+    while (cursor < widget.apps.length) {
+      final hasHeader = _getDefaultHeader(pageIndex) != null;
+      final capacity = hasHeader ? 12 : 24; // 12 apps (3 rows) with widget, 24 apps (6 rows) without
+      final end = (cursor + capacity < widget.apps.length)
+          ? cursor + capacity
           : widget.apps.length;
-      pages.add(widget.apps.sublist(i, end));
+
+      pages.add(widget.apps.sublist(cursor, end));
+      cursor = end;
+      pageIndex++;
     }
+
     return pages;
   }
 
@@ -78,30 +114,38 @@ class _IOSPaginatedGridState extends State<IOSPaginatedGrid> {
             itemCount: pages.length,
             itemBuilder: (context, pageIndex) {
               final pageApps = pages[pageIndex];
+              final headerWidget = _getDefaultHeader(pageIndex);
 
               return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                child: GridView.builder(
-                  // Strictly follow a 4-column layout
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    mainAxisSpacing: 18.0,
-                    crossAxisSpacing: 14.0,
-                    childAspectRatio: 0.76,
-                  ),
-                  physics: const NeverScrollableScrollPhysics(), // Horizontal PageView owns scrolling
-                  itemCount: pageApps.length,
-                  itemBuilder: (context, appIndex) {
-                    final app = pageApps[appIndex];
-                    return IOSAppIcon(
-                      key: ValueKey('grid_${app.packageName}'),
-                      app: app,
-                      showLabel: true,
-                      iconSize: 60.0,
-                      isDock: false,
-                      onTap: () => widget.onAppTap(app),
-                    );
-                  },
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                child: Column(
+                  children: [
+                    ?headerWidget,
+                    Expanded(
+                      child: GridView.builder(
+                        // Strictly follow a 4-column layout
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 4,
+                          mainAxisSpacing: 16.0,
+                          crossAxisSpacing: 14.0,
+                          childAspectRatio: 0.74,
+                        ),
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: pageApps.length,
+                        itemBuilder: (context, appIndex) {
+                          final app = pageApps[appIndex];
+                          return IOSAppIcon(
+                            key: ValueKey('grid_${app.packageName}'),
+                            app: app,
+                            showLabel: true,
+                            iconSize: 60.0,
+                            isDock: false,
+                            onTap: () => widget.onAppTap(app),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               );
             },
