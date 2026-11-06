@@ -84,6 +84,18 @@ class MainActivity : FlutterActivity() {
                         result.error("LAUNCH_FAILED", e.localizedMessage, null)
                     }
                 }
+                "expandStatusBar" -> {
+                    try {
+                        @Suppress("WrongConstant")
+                        val statusBarService = getSystemService("statusbar")
+                        val statusBarManager = Class.forName("android.app.StatusBarManager")
+                        val expandMethod = statusBarManager.getMethod("expandNotificationsPanel")
+                        expandMethod.invoke(statusBarService)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.error("STATUS_BAR_ERROR", e.localizedMessage, null)
+                    }
+                }
                 else -> result.notImplemented()
             }
         }

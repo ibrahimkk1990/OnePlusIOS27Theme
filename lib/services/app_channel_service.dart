@@ -37,4 +37,16 @@ class AppChannelService {
       return false;
     }
   }
+
+  /// Triggers the native Android notification & quick settings panel
+  Future<bool> expandStatusBar() async {
+    try {
+      final bool? result = await _channel.invokeMethod<bool>('expandStatusBar');
+      return result ?? false;
+    } on PlatformException catch (e) {
+      // ignore: avoid_print
+      print('Failed to expand status bar: ${e.message}');
+      return false;
+    }
+  }
 }
