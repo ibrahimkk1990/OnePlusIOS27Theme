@@ -61,6 +61,15 @@ flutter:
 
   assets:
     - assets/icons/
+    - assets/fonts/
+
+  fonts:
+    - family: SF Pro Display
+      fonts:
+        - asset: assets/fonts/SF-Pro-Display-Regular.ttf
+    - family: SF Pro Rounded
+      fonts:
+        - asset: assets/fonts/SF-Pro-Rounded.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:
