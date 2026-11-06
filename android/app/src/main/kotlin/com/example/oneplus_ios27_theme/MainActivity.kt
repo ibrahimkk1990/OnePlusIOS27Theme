@@ -29,6 +29,24 @@ class MainActivity : FlutterActivity() {
         return FlutterActivityLaunchConfigs.BackgroundMode.transparent
     }
 
+    override fun onCreate(savedInstanceState: android.os.Bundle?) {
+        super.onCreate(savedInstanceState)
+        startPersistenceService()
+    }
+
+    private fun startPersistenceService() {
+        val serviceIntent = Intent(this, LauncherPersistenceService::class.java)
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                startForegroundService(serviceIntent)
+            } else {
+                startService(serviceIntent)
+            }
+        } catch (e: Exception) {
+            // Log or fallback
+        }
+    }
+
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
 
