@@ -94,10 +94,11 @@ class _IOSPaginatedGridState extends State<IOSPaginatedGrid> {
                   itemBuilder: (context, appIndex) {
                     final app = pageApps[appIndex];
                     return IOSAppIcon(
-                      key: ValueKey(app.packageName),
+                      key: ValueKey('grid_${app.packageName}'),
                       app: app,
                       showLabel: true,
                       iconSize: 60.0,
+                      isDock: false,
                       onTap: () => widget.onAppTap(app),
                     );
                   },

@@ -48,10 +48,11 @@ class IOSDock extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: displayApps.map((app) {
                 return IOSAppIcon(
-                  key: ValueKey(app.packageName),
+                  key: ValueKey('dock_${app.packageName}'),
                   app: app,
                   showLabel: false, // Dock icons in iOS don't display labels
                   iconSize: 60.0,
+                  isDock: true,
                   onTap: () => onAppTap(app),
                 );
               }).toList(),
