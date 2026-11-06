@@ -14,6 +14,7 @@ import android.os.Process
 import android.os.UserManager
 import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterActivityLaunchConfigs
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.io.ByteArrayOutputStream
@@ -23,6 +24,10 @@ class MainActivity : FlutterActivity() {
     private val CHANNEL = "com.oneplus.ios27/apps"
     private val backgroundExecutor = Executors.newSingleThreadExecutor()
     private val mainHandler = Handler(Looper.getMainLooper())
+
+    override fun getBackgroundMode(): FlutterActivityLaunchConfigs.BackgroundMode {
+        return FlutterActivityLaunchConfigs.BackgroundMode.transparent
+    }
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
